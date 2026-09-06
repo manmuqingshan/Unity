@@ -407,6 +407,7 @@ module RakefileHelpers
     combined_output = ''
     [ "make -s",                 # test with all defaults
       "make -s coverage",        # test with coverage
+      "make -s execTimeDetection", # compile default UNITY_INCLUDE_EXEC_TIME macros
       "cd #{File.join("..","extras","fixture",'test')} && make -s default noStdlibMalloc",
       "cd #{File.join("..","extras","fixture",'test')} && make -s C89",
       "cd #{File.join("..","extras","memory",'test')} && make -s default noStdlibMalloc",

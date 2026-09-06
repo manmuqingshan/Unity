@@ -13,6 +13,12 @@ Prior to 2008, the project was an internal project and not released to the publi
 
 ## Log
 
+### Unity 2.7.2
+
+Significant Bugfixes:
+
+  - Default `UNITY_INCLUDE_EXEC_TIME` macros compile as ISO C99, are statement-safe, and accept `-Wsign-conversion` (#838)
+
 ### Unity 2.7.0 (July 2026)
 
 New Features:

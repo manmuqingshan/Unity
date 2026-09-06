@@ -395,33 +395,34 @@ typedef UNITY_FLOAT_TYPE UNITY_FLOAT;
       !defined(UNITY_EXEC_TIME_STOP) && \
       !defined(UNITY_PRINT_EXEC_TIME) && \
       !defined(UNITY_TIME_TYPE)
-      /* If none any of these macros are defined then try to provide a default implementation */
+      /* If none of these macros are defined then try to provide a default implementation */
 
     #if defined(UNITY_CLOCK_MS)
       /* This is a simple way to get a default implementation on platforms that support getting a millisecond counter */
       #define UNITY_TIME_TYPE UNITY_UINT
       #define UNITY_EXEC_TIME_START() Unity.CurrentTestStartTime = UNITY_CLOCK_MS()
       #define UNITY_EXEC_TIME_STOP() Unity.CurrentTestStopTime = UNITY_CLOCK_MS()
-      #define UNITY_PRINT_EXEC_TIME() { \
+      #define UNITY_PRINT_EXEC_TIME() do { \
         UNITY_UINT execTimeMs = (Unity.CurrentTestStopTime - Unity.CurrentTestStartTime); \
         UnityPrint(" ("); \
         UnityPrintNumberUnsigned(execTimeMs); \
         UnityPrint(" ms)"); \
-        }
+        } while (0)
     #elif defined(_WIN32)
       #include <time.h>
       #define UNITY_TIME_TYPE clock_t
       #define UNITY_GET_TIME(t) t = (clock_t)((clock() * 1000) / CLOCKS_PER_SEC)
       #define UNITY_EXEC_TIME_START() UNITY_GET_TIME(Unity.CurrentTestStartTime)
       #define UNITY_EXEC_TIME_STOP() UNITY_GET_TIME(Unity.CurrentTestStopTime)
-      #define UNITY_PRINT_EXEC_TIME() { \
-        UNITY_UINT execTimeMs = (Unity.CurrentTestStopTime - Unity.CurrentTestStartTime); \
+      #define UNITY_PRINT_EXEC_TIME() do { \
+        UNITY_UINT execTimeMs = (UNITY_UINT)(Unity.CurrentTestStopTime - Unity.CurrentTestStartTime); \
         UnityPrint(" ("); \
         UnityPrintNumberUnsigned(execTimeMs); \
         UnityPrint(" ms)"); \
-        }
+        } while (0)
     #elif defined(__unix__) || defined(__APPLE__)
       #include <time.h>
+      #if defined(CLOCK_MONOTONIC)
       #define UNITY_TIME_TYPE struct timespec
       #define UNITY_GET_TIME(t) clock_gettime(CLOCK_MONOTONIC, &t)
       #define UNITY_EXEC_TIME_START() UNITY_GET_TIME(Unity.CurrentTestStartTime)
@@ -432,7 +433,20 @@ typedef UNITY_FLOAT_TYPE UNITY_FLOAT;
         UnityPrint(" ("); \
         UnityPrintNumberUnsigned(execTimeMs); \
         UnityPrint(" ms)"); \
-        } while(0)
+        } while (0)
+      #else
+      /* CLOCK_MONOTONIC is POSIX, not ISO C. Fall back so -std=c99 still compiles. */
+      #define UNITY_TIME_TYPE clock_t
+      #define UNITY_GET_TIME(t) t = (clock_t)((clock() * 1000) / CLOCKS_PER_SEC)
+      #define UNITY_EXEC_TIME_START() UNITY_GET_TIME(Unity.CurrentTestStartTime)
+      #define UNITY_EXEC_TIME_STOP() UNITY_GET_TIME(Unity.CurrentTestStopTime)
+      #define UNITY_PRINT_EXEC_TIME() do { \
+        UNITY_UINT execTimeMs = (UNITY_UINT)(Unity.CurrentTestStopTime - Unity.CurrentTestStartTime); \
+        UnityPrint(" ("); \
+        UnityPrintNumberUnsigned(execTimeMs); \
+        UnityPrint(" ms)"); \
+        } while (0)
+      #endif
     #endif
   #endif
 #endif

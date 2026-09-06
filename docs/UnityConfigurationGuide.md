@@ -488,6 +488,10 @@ Define this to measure and report execution time for each test in the suite. Whe
 it's best to automatically find a way to determine the time in milliseconds. On most Windows, macos, or 
 Linux environments, this is automatic. If not, you can give Unity more information.
 
+On Unix and macOS, the default uses POSIX `clock_gettime(CLOCK_MONOTONIC)` when that clock is available.
+If it is not (strict ISO C with no POSIX clocks in `<time.h>`), it falls back to the standard `clock()` function,
+which is also the Windows default.
+
 #### `UNITY_CLOCK_MS`
 
 If you're working on a system (embedded or otherwise) which has an accessible millisecond timer. You can
